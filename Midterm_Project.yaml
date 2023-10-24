@@ -18,6 +18,12 @@
           - description IPv6 Loopback Interface
           - ipv6 address 2001:db8:10::1/64
         parents: interface Loopback1
+    
+    - name: Create OSPFv3 Instance
+      ios_config:
+        lines:
+          - router-id 1.1.1.1
+        parents: router ospfv3 1
 
     - name: Configure OSPFv3 on Loopback0
       ios_config:
