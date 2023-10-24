@@ -1,0 +1,43 @@
+---
+- name: Configure Loopback Interfaces and OSPFv3 on CSR1kv
+  hosts: CSR1kv
+  connection: local
+  gather_facts: no
+
+  tasks:
+    - name: Create IPv4 Loopback Interface
+      ios_config:
+        lines:
+          - description IPv4 Loopback Interface
+          - ip address 10.10.10.1 255.255.255.0
+        parents: interface Loopback0
+
+    - name: Create IPv6 Loopback Interface
+      ios_config:
+        lines:
+          - description IPv6 Loopback Interface
+          - ipv6 address 2001:db8:10::1/64
+        parents: interface Loopback1
+
+    - name: Configure OSPFv3 on Loopback0
+      ios_config:
+        lines:
+          - ospfv3 1 ipv4 area 0
+        parents: interface Loopback0
+
+    - name: Configure OSPFv3 on Loopback1
+      ios_config:
+        lines:
+          - ospfv3 1 ipv6 area 0
+        parents: interface Loopback1
+
+    - name: Backup the running configuration
+      ios_command:
+        commands:
+          - show running-config
+      register: running_config
+
+    - name: Save running configuration to a file
+      copy:
+        content: "{{ running_config.stdout[0] }}"
+        dest: ./backups/running-config.txt
